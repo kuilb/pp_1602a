@@ -3,7 +3,7 @@ package kulib;
 import static kulib.Dis_1602a.display_costom;
 
 public class Displayer {
-    public static final long MIN_INTERVAL_MS = 600;
+    public static final long MIN_INTERVAL_MS = 50;  // 20fps
     private static final Displayer INSTANCE = new Displayer();
 
     public static Displayer getInstance() {
