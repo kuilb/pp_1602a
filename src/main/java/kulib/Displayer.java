@@ -244,6 +244,8 @@ public class Displayer {
                 return buildHitsLine(gameInfo);
             case "ACC":
                 return buildACCLine(gameInfo);
+            case "UR":
+                return buildURLine(gameInfo);
             default:
                 return "                ";
         }
@@ -293,7 +295,23 @@ public class Displayer {
         } else {
             int pp95 = Math.round(gameInfo.getPp95());
             int pp98 = Math.round(gameInfo.getPp98());
-            return String.format("95:%3d    98:%3d", pp95, pp98);
+            return String.format("95:%4d  98:%4d", pp95, pp98);
+        }
+    }
+    
+    private String buildURLine(Info gameInfo) {
+        int states = gameInfo.get_states();
+        if (states == 2 || states == 7) {
+            // 打图时显示UR值
+            double ur = gameInfo.getUnstableRate();
+            if (ur > 0) {
+                return String.format("UR:      %6.1f", ur);
+            } else {
+                return "UR:         N/A";
+            }
+        } else {
+            // 选图时显示难度相关信息
+            return "   当前显示UR   ";
         }
     }
 }

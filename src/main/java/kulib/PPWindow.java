@@ -343,10 +343,10 @@ public class PPWindow extends Application {
 
         // 信息显示选单
         ComboBox<String> firstLineCombo = new ComboBox<>();
-        firstLineCombo.getItems().addAll("PP", "KeyOverlay", "Hits", "ACC");
+        firstLineCombo.getItems().addAll("PP", "KeyOverlay", "Hits", "ACC", "UR");
         firstLineCombo.setValue(firstLineDisplay);
         ComboBox<String> secondLineCombo = new ComboBox<>();
-        secondLineCombo.getItems().addAll("Hits", "ACC", "PP", "KeyOverlay");
+        secondLineCombo.getItems().addAll("Hits", "ACC", "PP", "KeyOverlay", "UR");
         secondLineCombo.setValue(secondLineDisplay);
 
         // 根据当前按键动画状态设置初始禁用状态

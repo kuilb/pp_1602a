@@ -23,6 +23,7 @@ public class Info {
     private int smiss;
     private int sliderBreaks;
     private int states;
+    private double unstableRate;
 
     // KeyOverlay 数据
     private boolean k1Pressed;
@@ -67,6 +68,13 @@ public class Info {
             this.s50 = (int) hits.getOrDefault("50", 0);
             this.smiss = (int) hits.getOrDefault("0", 0);  // miss 是 key "0"
             this.sliderBreaks = (int) hits.getOrDefault("sliderBreaks", 0);
+            // 解析 unstableRate (UR)
+            Object urValue = hits.get("unstableRate");
+            if (urValue != null) {
+                this.unstableRate = ((Number) urValue).doubleValue();
+            } else {
+                this.unstableRate = 0.0;
+            }
         }
         else {
             System.err.println("hits 数据为空");
@@ -119,6 +127,7 @@ public class Info {
     public float getPp95() { return pp_95; }
     public float getPp98() { return pp_98; }
     public float getPp100() { return pp_100; }
+    public double getUnstableRate() { return unstableRate; }
 
     // KeyOverlay getter 方法
     public boolean isK1Pressed() { return k1Pressed; }
