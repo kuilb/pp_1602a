@@ -18,10 +18,15 @@ public class Sender {
     // 建立连接
     public void connect() throws IOException {
         if (socket == null || socket.isClosed()) {
-            socket = new Socket(ip, port);
-            socket.setSoTimeout(3000); // 可选超时设置
-            out = socket.getOutputStream();
-            System.out.println("已连接至pico " + ip + ":" + port);
+            try {
+                socket = new Socket(ip, port);
+                socket.setSoTimeout(3000); // 可选超时设置
+                out = socket.getOutputStream();
+                System.out.println("已连接至pico " + ip + ":" + port);
+            } catch (IOException e) {
+                System.err.println("连接失败: " + e.getMessage());
+                throw new IOException("无法连接到pico " + ip + ":" + port, e);
+            }
         }
     }
 
@@ -32,8 +37,13 @@ public class Sender {
             if (socket != null) socket.close();
             System.out.println("已断开连接");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("断开连接失败: " + e.getMessage());
         }
+    }
+
+    // 检查连接状态
+    public boolean isConnected() {
+        return socket != null && !socket.isClosed() && socket.isConnected();
     }
 
     // 发送数据

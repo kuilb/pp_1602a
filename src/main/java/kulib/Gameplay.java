@@ -9,6 +9,7 @@ public class Gameplay {
     public Current_pp pp;
     public Map<String, Object> hits;
     private Map<String, Double> menuPP;
+    private Map<String, Object> keyOverlay;
     private int states;
 
     // PP类
@@ -33,6 +34,14 @@ public class Gameplay {
     }
     public Map<String, Double> getMenuPP() {
         return menuPP;
+    }
+
+    // KeyOverlay类
+    public void setKeyOverlay(Map<String, Object> keyOverlay) {
+        this.keyOverlay = keyOverlay;
+    }
+    public Map<String, Object> getKeyOverlay() {
+        return keyOverlay;
     }
 
     // 状态标志

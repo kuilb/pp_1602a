@@ -1,4 +1,5 @@
 package kulib;
+import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,36 +23,43 @@ public class Api {
     }
 
     public String getJson() {
-        for (int attempt = 0; attempt < 5; attempt++) {
-            try {
-                URL url = new URL(PPWindow.getJsonIp() + "/json");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setConnectTimeout(2000); // 连接超时2秒
-                conn.setReadTimeout(2000);    // 读取超时2秒
+        try {
+            URL url = new URL(PPWindow.getJsonIp() + "/json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(2000); // 连接超时2秒
+            conn.setReadTimeout(2000);    // 读取超时2秒
 
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                    StringBuilder content = new StringBuilder();
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    return content.toString();
-                } finally {
-                    conn.disconnect();
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 500) {
+                Platform.runLater(() -> PPWindow.showErrorHint("请打开OSU"));
+                conn.disconnect();
+                return null;
+            }
+
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                StringBuilder content = new StringBuilder();
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    content.append(inputLine);
                 }
-            } catch (IOException e) {
-                System.err.printf("JSON请求失败(尝试 %d/5): %s%n", attempt + 1, e.getMessage());
-                try {
-                    Thread.sleep(2000); // 重试间隔2秒
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return null;
-                }
+                return content.toString();
+            } finally {
+                conn.disconnect();
+            }
+        } catch (IOException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Connection refused")) {
+                Platform.runLater(() -> PPWindow.showErrorHint("请打开TOSU"));
+            }
+            System.err.printf("JSON请求失败 %s%n",e.getMessage());
+            try {
+                Thread.sleep(2000); // 重试间隔2秒
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                return null;
             }
         }
-        System.err.println("达到最大重试次数,无法获取JSON数据");
-        return null;
+    return null;
     }
 
     public Info fetchGameData() {
@@ -78,16 +86,17 @@ public class Api {
                     gameplay.getpp(),
                     gameplay.getHits(),
                     gameplay.getMenuPP(),
+                    gameplay.getKeyOverlay(),
                     gameplay.getStates()
             );
 
-            // 异步发送到显示器（带速率限制）
+            // 速率限制，确保发送和更新时间原子性
             long now = System.currentTimeMillis();
-            if (now - lastSendTime.get() >= Displayer.MIN_INTERVAL_MS) {
+            if (now - lastSendTime.get() >= Displayer.getMinIntervalMs()) {
+                lastSendTime.set(now);
                 //System.out.println("[API] 状态为: " + gameInfo.get_states() + " @ " + gameInfo.hashCode());
                 //System.out.println(now+" "+lastSendTime.get()+"=="+(now - lastSendTime.get()));
                 new Thread(() -> Displayer.getInstance().display(gameInfo)).start();
-                lastSendTime.set(now);
             }
             return gameInfo;
         } catch (Exception e) {

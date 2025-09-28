@@ -16,6 +16,8 @@ public class JsonReader {
         gameplay.setpp(status.gameplay.pp);
         // 获取hits Map并发送给gameplay
         gameplay.setHits(status.gameplay.hits);
+        // 获取keyOverlay Map并发送给gameplay
+        gameplay.setKeyOverlay(status.gameplay.getKeyOverlay());
 
         // 读取ACC PP
         if (status.menu != null) {
